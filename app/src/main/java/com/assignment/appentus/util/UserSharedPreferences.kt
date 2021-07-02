@@ -1,4 +1,4 @@
-package com.assignment.appentus
+package com.assignment.appentus.util
 
 import android.content.Context
 import android.content.SharedPreferences

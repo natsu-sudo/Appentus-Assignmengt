@@ -1,10 +1,7 @@
 package com.assignment.appentus.network
 
-import com.assignment.appentus.Constants
+import com.assignment.appentus.util.Constants
 import com.assignment.appentus.pojo.ImageURL
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
