@@ -63,25 +63,10 @@ class Places : Fragment() {
 
         //setting up Recycler View
         settingUpRecyclerView()
-
-
         settingUpTotalCountInDb()
-
-
-
-
         settingUpStatusListener()
-
-
-
         settingUpPagination()
-
-
-
         swipeUpToRefresh()
-
-
-
     }
 
     private fun settingUpPagination() {
@@ -167,7 +152,7 @@ class Places : Fragment() {
                     if (dy>0){
                         if (isScrolling && lastVisibleItem >= totalItemCount) {
                             isScrolling = false
-                            Log.d(TAG, "onScrolled: wah")
+                            Log.d(TAG, "onScrolled: wah $totalItemCount")
                             val pageNumber = UserSharedPreferences.initializeSharedPreferencesForSavedPage(
                                     requireActivity()
                             ).getInt(Constants.SAVED_PAGE, 1)

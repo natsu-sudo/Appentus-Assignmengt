@@ -31,7 +31,8 @@ class ImageViewModel(context: Context) : ViewModel() {
 
     val imageURL = Pager(PagingConfig(
             pageSize = 10,
-            enablePlaceholders = true)){
+            enablePlaceholders = true,
+            maxSize = 500)){
         repository.getImageUrlsFromDb()
     }.flow
 
