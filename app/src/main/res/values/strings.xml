@@ -2,4 +2,9 @@
     <string name="app_name">Appentus</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="error_no_data">No data returned from server. Please try again</string>
+    <string name="error_network">Error fetching data. Please check network.</string>
+    <string name="error_unknown">Unknown error. %1$s</string>
+    <string name="ok">OK</string>
+    <string name="network_error">Network Error</string>
 </resources>

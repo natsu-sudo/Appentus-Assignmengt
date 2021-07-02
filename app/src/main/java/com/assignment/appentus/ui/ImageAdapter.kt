@@ -1,8 +1,7 @@
 package com.assignment.appentus.ui
 
-import android.util.Log
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -13,6 +12,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.assignment.appentus.R
 import com.assignment.appentus.pojo.ImageURL
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.facebook.shimmer.ShimmerFrameLayout
 
 class ImageAdapter: PagingDataAdapter<ImageURL, ImageAdapter.ViewHolder>(DiffCallBack()) {
     class ViewHolder(private val view: View):RecyclerView.ViewHolder(view) {
@@ -20,15 +24,43 @@ class ImageAdapter: PagingDataAdapter<ImageURL, ImageAdapter.ViewHolder>(DiffCal
 
         private val imageView:ImageView=itemView.findViewById(R.id.image_poster)
         private val title:TextView=itemView.findViewById(R.id.image_title)
+        private val shimmer=itemView.findViewById<ShimmerFrameLayout>(R.id.shimmer_layout)
 
 
         fun onBind(item: ImageURL) {
+            shimmer.startShimmer()
             Glide.with(itemView)
                     .load(item.downloadUrl)
-                    .error(R.drawable.ic_launcher_background)
+                .listener(object :RequestListener<Drawable>{
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        imageView.setImageResource(R.drawable.ic_launcher_background)
+                        return false
+                    }
+                    override fun onResourceReady(
+                        resource: Drawable?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        dataSource: DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        shimmer.stopShimmer()
+                        shimmer.setShimmer(null)
+                        shimmer.hideShimmer()
+                        shimmer.visibility=View.GONE
+                        return false
+                    }
+
+                })
                     .override(500,500)
                     .into(imageView)
             title.text=item.author
+
+
         }
     }
 

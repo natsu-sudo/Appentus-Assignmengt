@@ -2,6 +2,7 @@ package com.assignment.appentus.database
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import com.assignment.appentus.network.ApiService
 import com.assignment.appentus.pojo.ErrorCode
@@ -17,29 +18,6 @@ class ImageURLRepository(context: Context) {
     private val apiService by lazy {
         ApiService.getInstance()
     }
-
-//    fun fetchFromNetwork(pageNumber: Int){
-//        val map = HashMap<String, Int>()
-//        map[Constants.PAGE] = pageNumber
-//        Log.d(TAG, "fetchFromNetwork: 11" )
-//        val callback: Call<List<ImageURL>> =
-//                apiService.getImageList(pageNumber)
-//        Log.d(TAG, "fetchFromNetwork: ${callback.request()}")
-//        callback.enqueue(object : Callback<List<ImageURL>> {
-//            override fun onResponse(call: Call<List<ImageURL>>, response: Response<List<ImageURL>>) {
-//                with(Dispatchers.IO){
-//
-//                }
-//
-//            }
-//
-//            override fun onFailure(call: Call<List<ImageURL>>, t: Throwable) {
-//                Log.d(TAG, "onFailure: $t")
-//            }
-//
-//        })
-//    }
-
 
     suspend fun fetchFromNetwork(pageNumber:Int) = try {
         val result = apiService.getImageList2(pageNumber)
@@ -63,6 +41,14 @@ class ImageURLRepository(context: Context) {
 
     fun getImageUrlsFromDb(): PagingSource<Int, ImageURL> {
         return urlImageDao.getListOfImage()
+    }
+
+    fun getTotalCount(): LiveData<Int> {
+        return urlImageDao.getCount()
+    }
+
+    suspend fun deleteAll(){
+        return urlImageDao.deleteAllData()
     }
 
 }

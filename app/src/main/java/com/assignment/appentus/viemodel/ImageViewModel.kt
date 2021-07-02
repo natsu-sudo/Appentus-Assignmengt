@@ -2,6 +2,7 @@ package com.assignment.appentus.viemodel
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,11 +17,13 @@ import kotlinx.coroutines.withContext
 class ImageViewModel(context: Context) : ViewModel() {
     private val repository = ImageURLRepository(context)
     private var liveStatus = MutableLiveData<LoadingStatus>()
+    val status get() = liveStatus
 
     fun fetchFromNetwork(pageNumber: Int) {
         Log.d("TAG", "fetchFromNetwork: ")
+        liveStatus.value=LoadingStatus.loading()
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            liveStatus.value = withContext(Dispatchers.IO) {
                 repository.fetchFromNetwork(pageNumber)
             }!!
         }
@@ -31,6 +34,20 @@ class ImageViewModel(context: Context) : ViewModel() {
             enablePlaceholders = true)){
         repository.getImageUrlsFromDb()
     }.flow
+
+    val getTotalCount:LiveData<Int> = getTotalRow()
+
+    private fun getTotalRow(): LiveData<Int> {
+        return repository.getTotalCount()
+    }
+
+    fun deleteData() {
+        viewModelScope.launch {
+            repository.deleteAll()
+        }
+    }
+
+
 
 
 }

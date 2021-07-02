@@ -1,5 +1,6 @@
 package com.assignment.appentus.database
 
+import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.*
 import com.assignment.appentus.pojo.ImageURL
@@ -18,5 +19,8 @@ interface ImageDao {
 
     @Query("delete from image_urls")
     suspend fun deleteAllData()
+
+    @Query("SELECT COUNT(*) FROM image_urls")
+    fun getCount(): LiveData<Int>
 
 }
