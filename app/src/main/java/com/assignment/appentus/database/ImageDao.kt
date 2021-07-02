@@ -9,7 +9,7 @@ import com.assignment.appentus.pojo.ImageURL
 interface ImageDao {
 
     @Query("select * from image_urls order by id asc")
-    fun getListOfImage():PagingSource<Int,ImageURL>
+    fun getListOfImage():LiveData<List<ImageURL>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertIntoDb(list: List<ImageURL>)

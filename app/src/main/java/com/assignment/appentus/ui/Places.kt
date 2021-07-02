@@ -1,16 +1,20 @@
 package com.assignment.appentus.ui
 
+import android.app.AlertDialog
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
 import androidx.annotation.RequiresApi
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -26,6 +30,7 @@ import com.assignment.appentus.pojo.Status
 import com.assignment.appentus.viemodel.ImageViewModel
 import com.assignment.appentus.viemodel.ViewModelFactory
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -63,18 +68,19 @@ class Places : Fragment() {
 
         //setting up Recycler View
         settingUpRecyclerView()
-        settingUpTotalCountInDb()
         settingUpStatusListener()
         settingUpPagination()
         swipeUpToRefresh()
     }
 
     private fun settingUpPagination() {
-        lifecycleScope.launch {
-            listViewModel.imageURL.collect {
-                imageAdapter.submitData(it)
+        listViewModel.getList.observe(viewLifecycleOwner, Observer {
+            (binding.imageUrlRecyclerView.adapter as ImageAdapter).submitList(it)
+            Log.d(TAG, "settingUpPagination: " + it.size)
+            if (it.isEmpty()) {
+                listViewModel.fetchFromNetwork(Constants.ONE)
             }
-        }
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -102,6 +108,7 @@ class Places : Fragment() {
         listViewModel.status.observe(viewLifecycleOwner, Observer { loadingStatus ->
             when (loadingStatus?.status) {
                 (Status.LOADING) -> {
+
                     Log.d(TAG, "onViewCreated: Status loading")
                 }
                 (Status.SUCCESS) -> {
@@ -114,7 +121,6 @@ class Places : Fragment() {
                     sharedPreferences.edit().putInt(Constants.SAVED_PAGE, lastSavedPageNumber + 1)
                             .apply()
                     binding.loadingStatusText.visibility = View.GONE
-                    isScrolling = false
                 }
                 (Status.ERROR) -> {
                     binding.loadingStatusText.visibility = View.VISIBLE
@@ -125,51 +131,43 @@ class Places : Fragment() {
         })
     }
 
-    private fun settingUpTotalCountInDb() {
-        listViewModel.getTotalCount.observe(viewLifecycleOwner, Observer {
-            if (it == 0) {
-                val pageNumber = UserSharedPreferences.initializeSharedPreferencesForSavedPage(
-                        requireActivity()
-                )
-                        .getInt(Constants.SAVED_PAGE, 1)
-                listViewModel.fetchFromNetwork(pageNumber)
-            }
-        })
-    }
-
     private fun settingUpRecyclerView() {
         binding.imageUrlRecyclerView.apply {
             layoutManager=GridLayoutManager(activity, 2)
             adapter=imageAdapter
-            setHasFixedSize(false)
-            isNestedScrollingEnabled=false
-            hasFixedSize()
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    val totalItemCount = (layoutManager as GridLayoutManager).itemCount
-                    val lastVisibleItem = (layoutManager as GridLayoutManager).findLastVisibleItemPosition()+1
-                    if (dy>0){
-                        if (isScrolling && lastVisibleItem >= totalItemCount) {
-                            isScrolling = false
-                            Log.d(TAG, "onScrolled: wah $totalItemCount")
-                            val pageNumber = UserSharedPreferences.initializeSharedPreferencesForSavedPage(
-                                    requireActivity()
-                            ).getInt(Constants.SAVED_PAGE, 1)
-                            listViewModel.fetchFromNetwork(pageNumber)
-                        }
-                    }
-                }
+            setHasFixedSize(true)
 
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
-                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                        isScrolling = true
-                    }
-                }
-
-            })
         }
+        binding.imageUrlRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 0) {
+                    val totalCount = (recyclerView.layoutManager as GridLayoutManager).itemCount
+                    val lastVisiblePosition = (recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+                    Log.d(TAG, "onScrolled: $totalCount  $lastVisiblePosition")
+                    if (!isScrolling && ((totalCount - (lastVisiblePosition + 1)) == 0)) {
+                        isScrolling = true
+                        val position = lastVisiblePosition-20
+                        binding.progressCircular.visibility = View.VISIBLE
+                        Handler().postDelayed({
+                            binding.progressCircular.visibility = View.GONE
+                            Log.d(TAG, "onScrolled: position $position")
+                            binding.imageUrlRecyclerView.scrollToPosition(position)
+                            isScrolling = false
+                        }, Constants.TEN_SECOND)
+                        val pageNumber = UserSharedPreferences.initializeSharedPreferencesForSavedPage(
+                                requireActivity()
+                        ).getInt(Constants.SAVED_PAGE, 1)
+                        Log.d(TAG, "onScrolled: $pageNumber")
+                        listViewModel.fetchFromNetwork(pageNumber)
+                    }
+                }
+            }
+        })
     }
 
     private fun showError(errorCode: ErrorCode?, message: String?) {

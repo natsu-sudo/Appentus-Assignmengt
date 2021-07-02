@@ -3,7 +3,6 @@ package com.assignment.appentus.database
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.paging.PagingSource
 import com.assignment.appentus.network.ApiService
 import com.assignment.appentus.pojo.ErrorCode
 import com.assignment.appentus.pojo.ImageURL
@@ -20,13 +19,13 @@ class ImageURLRepository(context: Context) {
     }
 
     suspend fun fetchFromNetwork(pageNumber:Int) = try {
-        val result = apiService.getImageList2(pageNumber)
-        Log.d("TAG", "fetchFromNetwork: $result")
+        val result = apiService.getImageList(pageNumber)
+        Log.d(TAG, "fetchFromNetwork: $result")
         if (result.isSuccessful) {
-            val tvSeriesList = result.body()
-            Log.d("TAG", "fetchFromNetwork: $tvSeriesList")
-            tvSeriesList?.let {
-                Log.d("TAG", "fetchFromNetwork: $it")
+            val imageList = result.body()
+            Log.d(TAG, "fetchFromNetwork: $imageList")
+            imageList?.let {
+                Log.d(TAG, "fetchFromNetwork: $it")
             urlImageDao.insertIntoDb(it)
             }
             LoadingStatus.success()
@@ -39,7 +38,7 @@ class ImageURLRepository(context: Context) {
         LoadingStatus.error(ErrorCode.UNKNOWN_ERROR)
     }
 
-    fun getImageUrlsFromDb(): PagingSource<Int, ImageURL> {
+    fun getImageUrlsFromDb(): LiveData<List<ImageURL>> {
         return urlImageDao.getListOfImage()
     }
 

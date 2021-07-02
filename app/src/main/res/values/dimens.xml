@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="density_pixel_10">10dp</dimen>
+    <dimen name="density_pixel_150">150dp</dimen>
+    <dimen name="density_pixel_5">5dp</dimen>
+    <dimen name="density_pixel_30">30dp</dimen>
+    <dimen name="density_pixel_6">6dp</dimen>
+    <dimen name="scale_pixel_15">15sp</dimen>
+    <dimen name="density_pixel_8">8dp</dimen>
+</resources>

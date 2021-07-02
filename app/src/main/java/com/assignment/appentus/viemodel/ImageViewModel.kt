@@ -6,9 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import com.assignment.appentus.database.ImageURLRepository
+import com.assignment.appentus.pojo.ImageURL
 import com.assignment.appentus.pojo.LoadingStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,12 +28,12 @@ class ImageViewModel(context: Context) : ViewModel() {
         }
     }
 
-    val imageURL = Pager(PagingConfig(
-            pageSize = 10,
-            enablePlaceholders = true,
-            maxSize = 500)){
-        repository.getImageUrlsFromDb()
-    }.flow
+    val getList:LiveData<List<ImageURL>> = getTotalPhotosDb()
+
+    private fun getTotalPhotosDb(): LiveData<List<ImageURL>> {
+        return repository.getImageUrlsFromDb()
+    }
+
 
     val getTotalCount:LiveData<Int> = getTotalRow()
 

@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="@color/colorShimmer"/>
     <corners
-        android:bottomLeftRadius="8dp"
-        android:bottomRightRadius="8dp"
-        android:topRightRadius="8dp"
-        android:topLeftRadius="8dp" />
+        android:bottomLeftRadius="@dimen/density_pixel_8"
+        android:bottomRightRadius="@dimen/density_pixel_8"
+        android:topRightRadius="@dimen/density_pixel_8"
+        android:topLeftRadius="@dimen/density_pixel_8" />
 </shape>
